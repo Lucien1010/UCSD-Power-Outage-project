@@ -9,14 +9,42 @@ title: "Predicting Power-Outage Durations"
   <meta charset="UTF-8" />
   <title>Predicting Power-Outage Durations</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; max-width: 900px; }
-    h1  { color: #0a3d62; }
-    img { max-width: 100%; height: auto; }
+    body {
+      font-family: Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      line-height: 1.6;
+      color: #eee;
+      background: #0a0a1a;
+    }
+    h1, h2, h3 {
+      color: #f0f0ff;
+    }
+    pre {
+      background: #121228;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    img, iframe {
+      display: block;
+      margin: 1rem 0;
+      max-width: 100%;
+      border: none;
+    }
   </style>
 </head>
 <body>
   <h1>Predicting Power‑Outage Durations</h1>
   <p>This site presents my DSC 80 Project 4 analysis of the U.S.&nbsp;major power‑outages dataset.</p>
+
+  <!-- -------- Step 1: Introduction -------- -->
+  <h2>Introduction</h2>
+  <p>
+    Major electric-grid interruptions have large economic and public-safety
+    impacts. We chose this dataset to investigate what factors drive
+    outage durations, and to build a predictive model of repair time.
+  </p>
 
   <!-- -------- Step 2: Exploratory Visualization -------- -->
   <h2>Data Cleaning and Exploratory Data Analysis</h2>
