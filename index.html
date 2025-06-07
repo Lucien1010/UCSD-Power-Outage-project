@@ -48,10 +48,13 @@ title: "Predicting Power-Outage Durations"
   <!-- -------- 2 -------- -->
   <h2>Data Cleaning and Exploratory Data Analysis</h2>
 
-  <h3>Missing Values</h3>
+  <h3>Data Cleaning</h3>
   <p>
-    After coercing <code>OUTAGE.DURATION</code> and <code>CUSTOMERS.AFFECTED</code> to numeric, I found <strong>58 missing duration</strong> entries and <strong>443 missing customer-affected</strong> entries. 
-    I will impute these missing values with median values before modeling.
+    After coercing non-numeric outage durations and customer counts to NaN and parsing dates, I computed the average outage duration per cause and selected the five causes with the largest means.
+  </p>
+  <iframe src="assets/step2D_agg.html" width="800" height="300" frameborder="0"></iframe>
+  <p>
+    This table shows the five causes with the highest average outage durations once the numeric columns were cleaned.
   </p>
 
   <h3>Distribution of Outage Durations</h3>
