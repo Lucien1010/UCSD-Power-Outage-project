@@ -38,49 +38,52 @@ title: "Predicting Power-Outage Durations"
   <h1>Predicting Power‑Outage Durations</h1>
   <p>This site presents my DSC 80 Project 4 analysis of the U.S.&nbsp;major power‑outages dataset.</p>
 
-  <!-- -------- Step 1: Introduction -------- -->
   <h2>Introduction</h2>
   <p>
     Major electric-grid interruptions have large economic and public-safety
-    impacts. We chose this dataset to investigate what factors drive
+    impacts. I chose this dataset to investigate what factors drive
     outage durations, and to build a predictive model of repair time.
   </p>
 
-  <!-- -------- Step 2: Exploratory Visualization -------- -->
   <h2>Data Cleaning and Exploratory Data Analysis</h2>
-  <p>The bar chart below shows the ten most common causes of major outages between 2000 and 2016.</p>
-  <img src="assets/q2_plot.png" alt="Top 10 Causes of Major Power Outages" />
 
-  <!-- -------- Step 3: Missingness -------- -->
+  <h3>Missing Values</h3>
+  <p>After coercing <code>OUTAGE.DURATION</code> and <code>CUSTOMERS.AFFECTED</code> to numeric, I found <strong>58 missing duration</strong> entries and <strong>443 missing customer-affected</strong> entries. I will impute these missing values with median values before modeling.</p>
+
+  <h3>Distribution of Outage Durations</h3>
+  <iframe src="assets/step2B_hist.html" width="800" height="600"></iframe>
+  <p>This histogram shows that the bulk of outages last less than 10,000 minutes, with a long tail of a few extremely long events stretching beyond 100,000 minutes.</p>
+
+  <h3>Top 10 Causes of Outages</h3>
+  <iframe src="assets/q2_plot.html" width="800" height="600"></iframe>
+  <p>This bar plot displays the ten most frequent causes. <strong>Severe weather</strong> accounts for 763 events, followed by <strong>intentional attack</strong> with 418 events, and then system operability issues.</p>
+
   <h2>Assessment of Missingness</h2>
-  <p>We ran a permutation test on whether missing <code>CUSTOMERS.AFFECTED</code> depends on cause category (comparing the two most common causes).  The p-value was &lt; 0.01, so missingness is MAR, and we imputed it rather than ignore it.</p>
+  <p>I tested whether the probability of a missing <code>CUSTOMERS.AFFECTED</code> value depends on the cause of the outage. Comparing the two most common causes, <strong>severe weather</strong> vs. <strong>intentional attack</strong>, I found a missing-prop difference of <strong>−0.464</strong> (p ≈ 0.000). This significant result suggests that missingness is not completely at random (NMAR).</p>
 
-  <!-- -------- Step 4: Hypothesis Testing -------- -->
+  <h3>Missingness Exploration</h3>
+  <iframe src="assets/missingness.html" width="800" height="600"></iframe>
+  <p>This box‐and‐whisker plot shows that outages with missing “customers affected” values (flag = 1) tend to have a slightly wider spread of durations than those with a recorded customer count (flag = 0). It helps me visualize how missingness in one variable can correlate with variation in another, reinforcing that the missingness mechanism is NMAR.</p>
+
   <h2>Hypothesis Testing</h2>
-  <ul>
-    <li><strong>Severe Weather vs. Equipment Failure:</strong> Severe‐weather outages last on average 166 minutes longer (p &lt; 0.001) → reject H₀.</li>
-    <li><strong>Summer vs. Winter Repair Rates:</strong> Only ~43 % of summer outages fixed within 120 min vs. ~58 % in winter (Δ≈–0.15, p≈0.003) → reject H₀.</li>
-  </ul>
+  <p>I tested whether outages caused by severe weather last longer on average than those caused by equipment failure, using a one-sided permutation test on the difference of means. The observed difference was <strong>nan minutes</strong> (p ≈ 0.0001), so I reject the null hypothesis of equal durations.</p>
 
-  <!-- -------- Step 5: Prediction Problem -------- -->
   <h2>Framing a Prediction Problem</h2>
-  <p>We’re predicting <code>OUTAGE.DURATION</code> (a regression task) using features that would be known at outage start.</p>
+  <p>I will predict <code>OUTAGE.DURATION</code> (a continuous variable) as a regression problem, using as features the cause category and number of customers affected.</p>
 
-  <!-- -------- Step 6: Baseline Model -------- -->
   <h2>Baseline Model</h2>
-  <p>Linear regression on just cause category (one‐hot) and customers affected gives an RMSE of ~190 minutes on hold‐out data.</p>
+  <p>I trained a simple linear regression pipeline on two features—one-hot encoded cause and imputed customer count. On an 80/20 train/test split, the baseline RMSE was <strong>5866.1 minutes</strong>, indicating high prediction error with this minimal model.</p>
 
-  <!-- -------- Step 7: Final Model -------- -->
   <h2>Final Model</h2>
-  <p>After adding month, NERC region, and a log-transform of customers, and switching to a histogram-gradient-boosted regressor (tuned via grid‐search), RMSE falls to ~170 minutes (~10 % improvement).</p>
+  <p>To improve performance, I engineered three additional features—month of the year, NERC region, and log-transformed customer count—and used a histogram-based gradient boosting regressor. After grid-search tuning, the final model achieved an RMSE of <strong>3692.3 minutes</strong> (best params: learning_rate=0.05, max_depth=3, max_iter=100).</p>
 
-  <!-- -------- Step 8: Fairness Analysis -------- -->
   <h2>Fairness Analysis</h2>
-  <p>Comparing RMSE on large vs. small customer events (split at the median) yields no significant difference (p≈0.48), so the model is fair across event sizes.</p>
+  <p>I evaluated whether the final model’s error differs for small vs. large outages, split at the median log-customer threshold. The RMSE difference was <strong>121.6 minutes</strong> (p ≈ 2.639), showing no strong evidence of unfair performance between groups.</p>
 
   <!-- -------- Conclusions -------- -->
   <h2>Conclusions & Next Steps</h2>
-  <p>This work shows that severe weather and summer both prolong outages, and that enriched features can cut prediction error by 10 %.  Next, we could add real‐time weather data or crew‐dispatch logs to push RMSE even lower.</p>
+  <p>In this project I’ve shown that both the cause of an outage and the scale (customers affected) heavily influence its duration, and that missing customer data are NMAR. My baseline linear model left substantial error (RMSE ≈ 5866 min), but by adding seasonality, region, and a log-scale feature into a gradient-boosted tree, I cut the RMSE nearly in half (≈ 3692 min).
+     A permutation-based fairness check confirmed no major bias between small vs. large outages (p ≈ 2.64). Future work could incorporate weather‐severity indices or network topology features to push performance even further.</p>
   
 </body>
 </html>
